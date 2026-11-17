@@ -1,0 +1,19 @@
+{
+  "name": "untracked",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "untracked": "src/main.ts"
+  },
+  "scripts": {
+    "untracked": "bun run src/main.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "build": "bun build src/main.ts --compile --outfile dist/untracked"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.4",
+    "typescript": "^7.0.2"
+  }
+}
