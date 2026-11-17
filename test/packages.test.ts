@@ -58,6 +58,14 @@ describe('collectPackages', () => {
     expect(JSON.stringify(items)).not.toContain('python3')
   })
 
+  test('pip user installs on macOS live in ~/Library/Python', async () => {
+    fixture = await makeHome({
+      'Library/Python/3.12/lib/python/site-packages/acme_tool-1.1.0.dist-info/RECORD': '',
+    })
+    const items = await collectPackages(fixture.ctx)
+    expect(ids(items)).toEqual(['package:pip:acme_tool'])
+  })
+
   test('cargo crates from .crates.toml', async () => {
     fixture = await makeHome({
       '.cargo/.crates.toml':

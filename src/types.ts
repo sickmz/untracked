@@ -7,7 +7,7 @@
 //   anomaly    a runtime oddity: a directory with too many entries, zombie processes, piled-up versions
 //   space      one of the largest directories of the home: where the disk space is
 //   installed  put there by a tool's own installer or self-updater, outside any package manager
-//   managed    owned by a package manager (dpkg, npm, bun, pip, cargo): reinstalling restores it
+//   managed    owned by a package manager (dpkg, Homebrew, npm, bun, pip, cargo): reinstalling restores it
 export type Category = 'manual' | 'orphan' | 'unclaimed' | 'anomaly' | 'space' | 'installed' | 'managed'
 
 export type Kind =
@@ -20,7 +20,7 @@ export type Kind =
   | 'config' // hand-written configuration file
   | 'key' // SSH key, by name only
   | 'hook' // a command some tool's configuration runs
-  | 'service' // systemd user unit
+  | 'service' // systemd unit or launchd job
   | 'cron'
   | 'repo' // git checkout
   | 'dir' // plain directory of the user's own files

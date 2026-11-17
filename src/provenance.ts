@@ -92,13 +92,20 @@ export async function resolveOrigin(ctx: Context, file: string): Promise<Origin>
   return { category: 'manual', detail: '' }
 }
 
-// The pip distribution directories of the user's Python installs.
+// The pip distribution directories of the user's Python installs:
+// "~/.local/lib/python3.12/site-packages" on Linux, "~/Library/Python/3.12/lib/python/site-packages" on macOS.
 export async function listDists(home: string): Promise<string[]> {
+  const sites: string[] = []
   const lib = join(home, '.local/lib')
-  const dists: string[] = []
   for (const python of await listDir(lib)) {
-    if (!python.name.startsWith('python')) continue
-    const site = join(lib, python.name, 'site-packages')
+    if (python.name.startsWith('python')) sites.push(join(lib, python.name, 'site-packages'))
+  }
+  const library = join(home, 'Library/Python')
+  for (const version of await listDir(library)) {
+    sites.push(join(library, version.name, 'lib/python/site-packages'))
+  }
+  const dists: string[] = []
+  for (const site of sites) {
     for (const entry of await listDir(site)) {
       if (entry.isDirectory() && entry.name.endsWith('.dist-info')) dists.push(join(site, entry.name))
     }
@@ -138,6 +145,8 @@ function isInside(home: string, file: string): boolean {
 }
 
 async function systemOrigin(ctx: Context, real: string): Promise<Origin> {
+  const formula = brewOwner(real)
+  if (formula != null) return { category: 'managed', origin: `brew:${formula}`, detail: `Homebrew formula ${formula}` }
   const result = await ctx.run('dpkg', ['-S', real])
   const owner = result.code === 0 ? dpkgOwner(result.stdout) : null
   if (owner != null) return { category: 'managed', origin: `dpkg:${owner}`, detail: `system package ${owner}` }
@@ -145,6 +154,14 @@ async function systemOrigin(ctx: Context, real: string): Promise<Origin> {
     return { category: 'installed', origin: 'system', detail: `link to ${real}, a versioned install` }
   }
   return { category: 'manual', detail: `link to ${real}` }
+}
+
+// The formula or cask that owns a real path: "jq" in "/opt/homebrew/Cellar/jq/1.7.1/bin/jq".
+export function brewOwner(real: string): string | null {
+  const segments = real.split('/')
+  const index = segments.findIndex((segment) => segment === 'Cellar' || segment === 'Caskroom')
+  if (index < 0) return null
+  return segments[index + 1] || null
 }
 
 // "jq: /usr/bin/jq" or "libfoo:amd64, libbar: /usr/lib/x" gives the first package name.

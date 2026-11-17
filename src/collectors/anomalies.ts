@@ -58,7 +58,10 @@ export async function findCrowded(ctx: Context, limits: Limits): Promise<Item[]>
     }
     if (depth >= limits.depth) continue
     for (const name of sub_dirs) {
-      if (!SKIPPED.has(name)) queue.push({ dir: join(dir, name), depth: depth + 1 })
+      if (SKIPPED.has(name)) continue
+      // The macOS counterpart of ~/.cache.
+      if (depth === 1 && name === 'Caches' && key === '~/Library') continue
+      queue.push({ dir: join(dir, name), depth: depth + 1 })
     }
   }
   return items

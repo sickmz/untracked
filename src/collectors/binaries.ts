@@ -48,7 +48,8 @@ async function walkHome(home: string): Promise<string[]> {
   for (const entry of await sortedDir(home)) {
     const file = join(home, entry.name)
     if (entry.isDirectory()) {
-      if (skipDir(entry.name) || (await isRepo(file))) continue
+      // ~/Library holds what macOS and its apps keep for themselves.
+      if (entry.name === 'Library' || skipDir(entry.name) || (await isRepo(file))) continue
       files.push(...(await walkTop(file)))
       continue
     }
@@ -79,8 +80,9 @@ async function walkTop(top: string): Promise<string[]> {
   return files
 }
 
+// A macOS app bundle holds the app's own programs.
 function skipDir(name: string): boolean {
-  return name.startsWith('.') || name === 'node_modules'
+  return name.startsWith('.') || name === 'node_modules' || name.endsWith('.app')
 }
 
 async function isProgram(file: string): Promise<boolean> {

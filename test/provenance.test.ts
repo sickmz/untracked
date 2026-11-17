@@ -35,6 +35,16 @@ describe('resolveOrigin', () => {
     expect(found.origin).toBe('dpkg:jq')
   })
 
+  test('a link into the Homebrew Cellar is managed by Homebrew', async () => {
+    fixture = await makeHome(
+      { '.local/bin/rg': { link: '/sys/opt/homebrew/Cellar/ripgrep/14.1.0/bin/rg' } },
+      { sys: { '/sys/opt/homebrew/Cellar/ripgrep/14.1.0/bin/rg': { text: ELF, exec: true } } },
+    )
+    const found = await resolveOrigin(fixture.ctx, fixture.place('~/.local/bin/rg'))
+    expect(found.category).toBe('managed')
+    expect(found.origin).toBe('brew:ripgrep')
+  })
+
   test('a link to a system file no package owns is the user\'s own, unless the path is versioned', async () => {
     fixture = await makeHome(
       { '.local/bin/tool': { link: '/sys/opt/tool' }, '.local/bin/acme': { link: '/sys/opt/acme/2.4.1/bin/acme' } },

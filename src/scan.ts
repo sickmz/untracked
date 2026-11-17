@@ -1,6 +1,8 @@
 import { collectAnomalies } from './collectors/anomalies'
 import { collectBinaries } from './collectors/binaries'
 import { collectHome } from './collectors/home'
+import { collectHomebrew } from './collectors/homebrew'
+import { collectLaunchd } from './collectors/launchd'
 import { collectPackages } from './collectors/packages'
 import { collectReferences } from './collectors/references'
 import { collectServices } from './collectors/services'
@@ -16,7 +18,9 @@ const COLLECTORS: Collector[] = [
   collectReferences,
   collectHome,
   collectServices,
+  collectLaunchd,
   collectSystem,
+  collectHomebrew,
   collectAnomalies,
 ]
 

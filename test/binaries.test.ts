@@ -110,6 +110,16 @@ describe('collectBinaries', () => {
     expect(items.map((item) => item.id)).toEqual(['script:~/big/aaa-early'])
   })
 
+  test('~/Library and app bundles are not searched for programs', async () => {
+    fixture = await makeHome({
+      'Library/Application Support/acme/helper': { text: ELF, exec: true },
+      'Applications/Orbit.app/Contents/MacOS/orbit': { text: ELF, exec: true },
+      'tools/run': { text: SCRIPT, exec: true },
+    })
+    const items = await collectBinaries(fixture.ctx)
+    expect(items.map((item) => item.id)).toEqual(['script:~/tools/run'])
+  })
+
   test('a top-level folder that is a git checkout is skipped entirely', async () => {
     fixture = await makeHome({ 'acme-cli/.git/HEAD': 'ref\n', 'acme-cli/dist/acme': { text: ELF, exec: true } })
     expect(await collectBinaries(fixture.ctx)).toEqual([])

@@ -53,6 +53,11 @@ test('.cache, node_modules and .git are not entered', async () => {
   expect(items).toEqual([])
 })
 
+test('~/Library/Caches is not entered, the rest of ~/Library is', async () => {
+  const items = await walk({ ...files('Library/Caches/acme', 8), ...files('Library/Logs/acme', 6) })
+  expect(items.map((item) => item.id)).toEqual(['anomaly:crowded:~/Library/Logs/acme'])
+})
+
 test('a crowded directory inside a git checkout is found', async () => {
   const items = await walk({ 'src/acme-cli/.git/HEAD': 'ref', ...files('src/acme-cli/fixtures', 7) })
   expect(items.map((item) => item.id)).toEqual(['anomaly:crowded:~/src/acme-cli/fixtures'])
